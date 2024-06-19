@@ -30,3 +30,42 @@ app.get("/api/hello", function (req, res) {
 var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+
+const dtFormat = {
+  "weekday": "short", 
+  "year": "numeric", 
+  "month": "short", 
+  "day": "2-digit", 
+  "hour": "2-digit", 
+  "minute": "2-digit", 
+  "second": "2-digit", 
+  "timeZone": "GMT", 
+  "timeZoneName": "short", 
+  "hour12": false}
+
+app.get("/api/:date", (req, res) => {
+  let inputDate;
+  if (/^[0-9]*$/.test(req.params.date)) {
+    inputDate = parseInt(req.params.date);
+  } else {
+    inputDate = req.params.date;
+  }
+  const parsedDate = inputDate ? new Date(inputDate) : new Date();
+  console.log(parsedDate)
+  if (! isNaN(parsedDate.getTime())) {
+    const unixDate = parsedDate.getTime() ;
+
+    const utcDate = parsedDate.toLocaleString("en-GB", dtFormat)
+      .replace('UTC', 'GMT')
+      .replace(/(?<=[0-9]{4}),/, ''); // removes comma after the year in GB formatting
+
+    res.json({
+      "unix": unixDate,
+      "utc": utcDate
+    });
+  } else {
+    res.json({
+      "error": "Invalid Date"
+    });
+  }
+})
