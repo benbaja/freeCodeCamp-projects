@@ -86,5 +86,13 @@ app.post("/api/shorturl", (req, res) => {
 })
 
 app.get("/api/shorturl/:short", (req, res) => {
-  console.log(req.body)
+  console.log(req.params.short)
+  ShortenedURL.findById(req.params.short)
+  .then((data) => {
+    console.log(data.url)
+    res.redirect(301, data.url)
+  })
+  .catch((err) => {
+    res.json({ error: 'invalid url' })
+  })
 })
