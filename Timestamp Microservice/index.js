@@ -51,7 +51,6 @@ app.get("/api/:date", (req, res) => {
     inputDate = req.params.date;
   }
   const parsedDate = inputDate ? new Date(inputDate) : new Date();
-  console.log(parsedDate)
   if (! isNaN(parsedDate.getTime())) {
     const unixDate = parsedDate.getTime() ;
 
@@ -68,4 +67,18 @@ app.get("/api/:date", (req, res) => {
       "error": "Invalid Date"
     });
   }
+})
+
+app.get("/api/", (req, res) => {
+  const parsedDate = new Date();
+
+  const unixDate = parsedDate.getTime() ;
+  const utcDate = parsedDate.toLocaleString("en-GB", dtFormat)
+    .replace('UTC', 'GMT')
+    .replace(/(?<=[0-9]{4}),/, ''); // removes comma after the year in GB formatting
+
+  res.json({
+    "unix": unixDate,
+    "utc": utcDate
+  });
 })
