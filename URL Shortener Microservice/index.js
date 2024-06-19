@@ -6,11 +6,13 @@ const express = require('express'),
       cors = require('cors'),
       app = express();
 
+require('dotenv').config()
+
 // Basic Configuration 
 const port = process.env.PORT || 3000;
 
 /** this project needs a db !! **/ 
-mongoose.connect(process.env.MONGOLAB_URI, { useMongoClient: true });
+mongoose.connect(process.env.MONGOLAB_URI);
 
 app.use(cors());
 
