@@ -123,7 +123,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
           allExercises.push({
             description: exercise.description,
             duration: exercise.duration,
-            date: exercise.date.toString()
+            date: exercise.date.toDateString()
           })
         })
       
