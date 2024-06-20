@@ -49,8 +49,9 @@ const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
 
+// users endpoints
+
 app.post('/api/users', (req, res) => {
-  console.log(req.body);
   const user = new User({username: req.body.username})
   user.save().then((userData) => {
     res.json({
@@ -66,9 +67,72 @@ app.get('/api/users', (req, res) => {
     data.forEach((user) => {
       allUsers.push({
         username: user.username,
-        id: user.id
+        _id: user.id
       })
     })
     res.json(allUsers)
   })
 }); 
+
+// exercises endpoint
+
+app.post('/api/users/:_id/exercises', (req, res) => {
+  User.findById(req.params._id).then((userData) => {
+    const exercise = new Exercise({
+      username: userData.username,
+      description: req.body.description,
+      duration: req.body.duration,
+      date: req.body.date ? new Date(req.body.date) : new Date()
+    })
+
+    exercise.save().then((exerciseData) => {
+        res.json({
+          username: userData.username,
+          description: exerciseData.description,
+          duration: exerciseData.duration,
+          date: exerciseData.date.toDateString(),
+          _id: userData.id
+        })
+      })
+    }).catch((err) => res.json({error: "invalid user ID"}))
+})
+
+// log endpoint
+
+app.get('/api/users/:_id/logs', (req, res) => {
+  let exerciseFilter = {};
+  console.log(req.query)
+  if (req.query.from) {
+    exerciseFilter.date = {} ;
+    exerciseFilter.date.$gte = req.query.from ;
+  }
+  if (req.query.to) {
+    exerciseFilter.date = exerciseFilter.date ? exerciseFilter.date : {} ;
+    exerciseFilter.date.$lte = req.query.to ;
+  }
+
+  User.findById(req.params._id).then((userData) => {
+    exerciseFilter.username = userData.username;
+    console.log(exerciseFilter)
+    Exercise.find(exerciseFilter)
+      .limit(req.query.limit ? parseInt(req.query.limit) : null)
+      .then((exercisesData) => {
+        let allExercises = [];
+
+        exercisesData.forEach((exercise) => {
+          allExercises.push({
+            description: exercise.description,
+            duration: exercise.duration,
+            date: exercise.date.toString()
+          })
+        })
+      
+        res.json({
+          username: userData.username,
+          count: allExercises.length,
+          _id: userData.id,
+          log: allExercises
+        })
+    })
+    }).catch((err) => res.json({error: "invalid user ID"}))
+})
